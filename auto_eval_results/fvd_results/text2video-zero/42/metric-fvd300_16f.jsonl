@@ -1,1 +1,1 @@
-{"results": {"fvd300_16f": 822.5619590117815}, "metric": "fvd300_16f", "total_time": 49.65265870094299, "total_time_str": "50s", "num_gpus": 1, "snapshot_pkl": null, "timestamp": 1693398464.4903305}
+{"results": {"fvd300_16f": 1112.9749024486819}, "metric": "fvd300_16f", "total_time": 24.995084524154663, "total_time_str": "25s", "num_gpus": 1, "snapshot_pkl": null, "timestamp": 1714295700.2749553}

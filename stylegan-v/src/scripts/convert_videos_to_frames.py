@@ -90,7 +90,7 @@ if __name__ == "__main__":
     parser.add_argument('--video_ext', type=str, default='mp4', help='Video extension')
     parser.add_argument('--target_size', type=int, default=128, help='What size should we resize to?')
     parser.add_argument('--force_fps', type=int, help='What fps should we run videos with?')
-    parser.add_argument('--num_workers', type=int, default=8, help='Number of processes to launch')
+    parser.add_argument('--num_workers', type=int, default=1, help='Number of processes to launch')
     parser.add_argument('--compute_fps_only', action='store_true', help='Should we just compute fps?')
     args = parser.parse_args()
 

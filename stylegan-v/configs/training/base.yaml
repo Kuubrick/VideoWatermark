@@ -33,4 +33,4 @@ fp32: false # Disable mixed-precision training
 nhwc: false # Use NHWC memory format with FP16
 nobench: false # Disable cuDNN benchmarking
 allow_tf32: false # Allow PyTorch to use TF32 internally
-num_workers: 3 # Override number of DataLoader workers
+num_workers: 1 # Override number of DataLoader workers

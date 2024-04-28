@@ -199,7 +199,7 @@ def compute_feature_stats_for_dataset(
         dataset_kwargs = video_to_image_dataset_kwargs(opts.dataset_kwargs) if use_image_dataset else opts.dataset_kwargs
         dataset = dnnlib.util.construct_class_by_name(**dataset_kwargs)
         if data_loader_kwargs is None:
-            data_loader_kwargs = dict(pin_memory=True, num_workers=3, prefetch_factor=2)
+            data_loader_kwargs = dict(pin_memory=True, num_workers=1, prefetch_factor=2)
 
     # Try to lookup from cache.
     cache_file = None
