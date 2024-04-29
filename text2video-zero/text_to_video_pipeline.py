@@ -380,12 +380,12 @@ class TextToVideoPipeline(StableDiffusionPipeline):
                 gt_patch = torch.fft.fftshift(torch.fft.fft2(gt_init), dim=(-1, -2)) * 0
             return gt_patch
 
-        def get_watermarking_pattern_dic(device, w_pattern, shape=None):
+        def get_watermarking_pattern_dic(device, w_pattern, key_path=None, shape=None):
             dic_gt_patch = {}
             #################################
             if shape is None:
                 # gt_init = torch.randn(*shape, device=device)
-                gt_init = torch.randn(1,4,64,64, device=device)
+                gt_init = torch.randn(1, 4, 64, 64, device=device)
             #################################
             else:
                 gt_init = self.prepare_latents(
@@ -401,9 +401,12 @@ class TextToVideoPipeline(StableDiffusionPipeline):
                 )
             # 对gt_init进行二维离散傅立叶变换，并将变换结果进行重排，使得负频率项在前，正频率项在后。
             if "ring" in w_pattern:
-                gt_patch = torch.fft.fftshift(torch.fft.fft2(gt_init), dim=(-1, -2)).to(
-                    dtype=torch.complex32
-                )
+                if key_path == None:
+                    gt_patch = torch.fft.fftshift(
+                        torch.fft.fft2(gt_init), dim=(-1, -2)
+                    ).to(dtype=torch.complex32)
+                else:
+                    gt_patch = torch.load(key_path).to(dtype=torch.complex32)
                 gt_patch_origin = copy.deepcopy(gt_patch)
                 for w_radius in range(16, 9, -1):
                     gt_patch_tmp = copy.deepcopy(gt_patch)
@@ -692,17 +695,20 @@ class TextToVideoPipeline(StableDiffusionPipeline):
                 raise Exception
             # x_t1是所有的latent
             x_t1 = torch.cat([x_t1_1, x_t1_k], dim=2).clone().detach()
-            ##########################################################################            
+            ##########################################################################
             if with_watermark:
                 dic_gt_patch = get_watermarking_pattern_dic(
-                    w_pattern=w_pattern, device=device
+                    w_pattern=w_pattern, device=device, key_path="tree_ring/key.pt"
                 )
                 for idx in range(len(li_radius)):
                     w_radius = li_radius[idx]
-                    w_radius = 10
-                    watermarking_mask = get_watermarking_mask(x_t1[:,:,idx,:,:], w_radius, device)
+                    watermarking_mask = get_watermarking_mask(
+                        x_t1[:, :, idx, :, :], w_radius, device
+                    )
                     gt_patch = dic_gt_patch[w_radius]
-                    x_t1[:,:,idx,:,:] = inject_watermark(x_t1[:,:,idx,:,:], watermarking_mask, gt_patch, w_pattern).clone()         
+                    x_t1[:, :, idx, :, :] = inject_watermark(
+                        x_t1[:, :, idx, :, :], watermarking_mask, gt_patch, w_pattern
+                    ).clone()
             ##########################################################################
             ddim_res = self.DDIM_backward(
                 num_inference_steps=num_inference_steps,

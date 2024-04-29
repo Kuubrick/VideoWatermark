@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}/",
+            "cwd": "${workspaceFolder}/text2video-zero",
             "args": [
                 "--num_frame",
                 "8",
@@ -19,7 +19,7 @@
                 "--prompt_path",
                 "datas/fetv_data.json",
                 "--output_root_path",
-                "output_videos",
+                "../output_videos/dynamic_radius",
             ]
         }
     ]
