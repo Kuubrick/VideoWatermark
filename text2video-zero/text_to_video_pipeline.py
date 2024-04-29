@@ -699,7 +699,7 @@ class TextToVideoPipeline(StableDiffusionPipeline):
                 )
                 for idx in range(len(li_radius)):
                     w_radius = li_radius[idx]
-                    w_radius = 16
+                    w_radius = 10
                     watermarking_mask = get_watermarking_mask(x_t1[:,:,idx,:,:], w_radius, device)
                     gt_patch = dic_gt_patch[w_radius]
                     x_t1[:,:,idx,:,:] = inject_watermark(x_t1[:,:,idx,:,:], watermarking_mask, gt_patch, w_pattern).clone()         
