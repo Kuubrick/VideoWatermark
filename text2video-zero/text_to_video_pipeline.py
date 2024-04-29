@@ -692,16 +692,17 @@ class TextToVideoPipeline(StableDiffusionPipeline):
                 raise Exception
             # x_t1是所有的latent
             x_t1 = torch.cat([x_t1_1, x_t1_k], dim=2).clone().detach()
+            ##########################################################################            
             if with_watermark:
                 dic_gt_patch = get_watermarking_pattern_dic(
                     w_pattern=w_pattern, device=device
                 )
                 for idx in range(len(li_radius)):
                     w_radius = li_radius[idx]
+                    w_radius = 16
                     watermarking_mask = get_watermarking_mask(x_t1[:,:,idx,:,:], w_radius, device)
                     gt_patch = dic_gt_patch[w_radius]
-                    x_t1[:,:,idx,:,:] = inject_watermark(x_t1[:,:,idx,:,:], watermarking_mask, gt_patch, w_pattern).clone()
-                    
+                    x_t1[:,:,idx,:,:] = inject_watermark(x_t1[:,:,idx,:,:], watermarking_mask, gt_patch, w_pattern).clone()         
             ##########################################################################
             ddim_res = self.DDIM_backward(
                 num_inference_steps=num_inference_steps,
