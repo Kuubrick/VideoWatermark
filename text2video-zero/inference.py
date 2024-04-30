@@ -93,7 +93,7 @@ def inference_dataset(args):
             inference_single_prompt(
                 model=model,
                 prompt=prompt,
-                pid=pid + 796,
+                pid=pid + 586,
                 output_root_path=args.output_root_path,
                 fps=args.fps,
                 num_frame=args.num_frame,
