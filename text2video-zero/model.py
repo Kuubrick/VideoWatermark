@@ -31,7 +31,7 @@ class ModelType(Enum):
 
 
 class Model:
-    def __init__(self, device, dtype, **kwargs):
+    def __init__(self, device, dtype, reference_model,reference_model_pretrain, **kwargs):
         self.device = device
         self.dtype = dtype
         self.generator = torch.Generator(device=device)
@@ -52,6 +52,11 @@ class Model:
 
         self.states = {}
         self.model_name = ""
+        self.ref_model, _, self.ref_clip_preprocess = open_clip.create_model_and_transforms(
+            reference_model, pretrained=reference_model_pretrain, device=self.device
+        )
+        self.ref_tokenizer = open_clip.get_tokenizer(reference_model)
+
 
     def set_model(self, model_type: ModelType, model_id: str, **kwargs):
         if hasattr(self, "pipe") and self.pipe is not None:
@@ -570,8 +575,6 @@ class Model:
         smooth_bg_strength=0.4,
         path=None,
         with_watermark=False,
-        reference_model="ViT-g-14",
-        reference_model_pretrain="laion2b_s12b_b42k",
     ):
         print("Module Text2Video")
         if self.model_type != ModelType.Text2Video or model_name != self.model_name:
@@ -584,10 +587,7 @@ class Model:
         self.generator.manual_seed(seed)
         added_prompt = "high quality, HD, 8K, trending on artstation, high focus, dramatic lighting"
         negative_prompts = "longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer difits, cropped, worst quality, low quality, deformed body, bloated, ugly, unrealistic"
-        ref_model, _, ref_clip_preprocess = open_clip.create_model_and_transforms(
-            reference_model, pretrained=reference_model_pretrain, device=self.device
-        )
-        ref_tokenizer = open_clip.get_tokenizer(reference_model)
+        
         prompt = prompt.rstrip()
         if len(prompt) > 0 and (prompt[-1] == "," or prompt[-1] == "."):
             prompt = prompt.rstrip()[:-1]
@@ -629,9 +629,9 @@ class Model:
             clip_scores = utils.calc_video_clip_score(
                 frames=result,
                 prompt=prompt,
-                ref_model=ref_model,
-                ref_clip_preprocess=ref_clip_preprocess,
-                ref_tokenizer=ref_tokenizer,
+                ref_model=self.ref_model,
+                ref_clip_preprocess=self.ref_clip_preprocess,
+                ref_tokenizer=self.ref_tokenizer,
                 device=self.device,
             )
 

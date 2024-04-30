@@ -46,8 +46,6 @@ def inference_single_prompt(
             seed=seed,
             watermark=None,
             with_watermark=with_watermark,
-            reference_model=args.reference_model,
-            reference_model_pretrain=args.reference_model_pretrain,
         )
     else:
         out_file = f"{output_root_path}/{fps}fps_{num_frame}frames/{pid}_{prompt.replace(' ','_')}_w.mp4"
@@ -70,15 +68,13 @@ def inference_single_prompt(
             seed=seed,
             watermark=None,
             with_watermark=with_watermark,
-            reference_model=args.reference_model,
-            reference_model_pretrain=args.reference_model_pretrain,
         )
 
 
 def inference_dataset(args):
     # prompts = ["A horse galloping on a street"]
     prompts = read_prompts(args.prompt_path)
-    model = Model(device="cuda", dtype=torch.float16)
+    model = Model(device="cuda", dtype=torch.float16,reference_model=args.reference_model,reference_model_pretrain=args.reference_model_pretrain,)
     if not args.with_watermark:
         for pid, prompt in enumerate(prompts):
             inference_single_prompt(
@@ -97,7 +93,7 @@ def inference_dataset(args):
             inference_single_prompt(
                 model=model,
                 prompt=prompt,
-                pid=pid + 586,
+                pid=pid + 796,
                 output_root_path=args.output_root_path,
                 fps=args.fps,
                 num_frame=args.num_frame,
