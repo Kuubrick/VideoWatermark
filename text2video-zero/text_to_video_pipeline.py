@@ -340,7 +340,6 @@ class TextToVideoPipeline(StableDiffusionPipeline):
         t0: int = 44,
         t1: int = 47,
         w_pattern="ring",
-        w_radius=10,
         li_radius=None,
         **kwargs,
     ):
@@ -430,7 +429,7 @@ class TextToVideoPipeline(StableDiffusionPipeline):
             return dic_gt_patch
 
         ##############################################################################
-        def get_watermarking_mask(init_latents_w, w_radius, device, w_channel=3):
+        def get_watermarking_mask(init_latents_w, w_radius, device, w_channel=0):
             watermarking_mask = torch.zeros(init_latents_w.shape, dtype=torch.bool).to(
                 device
             )

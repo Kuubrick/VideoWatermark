@@ -173,7 +173,6 @@ class Model:
                 generator=self.generator,
                 with_watermark=with_watermark,
                 w_pattern=w_pattern,
-                w_radius=w_radius,
                 li_radius=li_radius,
                 **kwargs,
             ).images
@@ -621,7 +620,6 @@ class Model:
                 chunk_size=chunk_size,
                 with_watermark=False,
                 w_pattern="ring",
-                w_radius=10,
             )
             path_no_w = path.replace("_w.mp4", ".mp4")
             utils.create_video(result, fps, path=path_no_w, watermark=None)
@@ -662,7 +660,6 @@ class Model:
                 split_to_chunks=False,
                 chunk_size=chunk_size,
                 w_pattern="ring",
-                w_radius=10,
                 with_watermark=with_watermark,
                 li_radius=li_radius,
             )
@@ -690,7 +687,6 @@ class Model:
                 split_to_chunks=False,
                 chunk_size=chunk_size,
                 w_pattern="ring",
-                w_radius=10,
                 with_watermark=with_watermark,
                 li_radius=None,
             )
