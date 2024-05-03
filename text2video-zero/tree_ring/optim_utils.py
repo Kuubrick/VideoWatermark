@@ -51,10 +51,10 @@ def image_distortion(img1, img2, seed, args):
         img2 = transforms.RandomRotation((args.r_degree, args.r_degree))(img2)
 
     if args.jpeg_ratio is not None:
-        img1.save(f"tmp_{args.jpeg_ratio}_{args.run_name}.jpg", quality=args.jpeg_ratio)
-        img1 = Image.open(f"tmp_{args.jpeg_ratio}_{args.run_name}.jpg")
-        img2.save(f"tmp_{args.jpeg_ratio}_{args.run_name}.jpg", quality=args.jpeg_ratio)
-        img2 = Image.open(f"tmp_{args.jpeg_ratio}_{args.run_name}.jpg")
+        img1.save(f"tmp_{args.jpeg_ratio}_img1.jpg", quality=args.jpeg_ratio)
+        img1 = Image.open(f"tmp_{args.jpeg_ratio}_img1.jpg")
+        img2.save(f"tmp_{args.jpeg_ratio}_img2.jpg", quality=args.jpeg_ratio)
+        img2 = Image.open(f"tmp_{args.jpeg_ratio}_img2.jpg")
 
     if args.crop_scale is not None and args.crop_ratio is not None:
         set_random_seed(seed)
