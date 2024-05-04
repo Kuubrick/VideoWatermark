@@ -701,7 +701,7 @@ class TextToVideoPipeline(StableDiffusionPipeline):
                 )
                 for idx in range(len(li_radius)):
                     w_radius = li_radius[idx]
-                    w_radius = 10
+                    w_radius = 16
                     watermarking_mask = get_watermarking_mask(
                         x_t1[:, :, idx, :, :], w_radius, device
                     )

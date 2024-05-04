@@ -620,6 +620,7 @@ class Model:
                 chunk_size=chunk_size,
                 with_watermark=False,
                 w_pattern="ring",
+                w_radius=16
             )
             path_no_w = path.replace("_w.mp4", ".mp4")
             utils.create_video(result, fps, path=path_no_w, watermark=None)
