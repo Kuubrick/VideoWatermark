@@ -663,6 +663,7 @@ class Model:
                 w_pattern="ring",
                 with_watermark=with_watermark,
                 li_radius=li_radius,
+                w_radius=16,
             )
             return utils.create_video(result, fps, path=path, watermark=None)
         else:
