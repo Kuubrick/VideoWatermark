@@ -81,6 +81,7 @@ if "__main__" == __name__:
     args = parser.parse_args()
 
     gen_path = f"datas/videos/{args.model}_fid/16frames_uniform"
+    gen_path = "/root/VideoWatermark/datas/videos/text2video-zero/dynamic_radius/8frames_uniform_w"
 
     for seed in [12]:
 

@@ -15,18 +15,19 @@ from annotator.openpose import OpenposeDetector
 import decord
 import open_clip
 from tree_ring.optim_utils import *
+
 # decord.bridge.set_bridge('torch')
 
 apply_canny = CannyDetector()
 apply_openpose = OpenposeDetector()
 
 
-def add_watermark(image, watermark_path, wm_rel_size=1/16, boundary=5):
-    '''
+def add_watermark(image, watermark_path, wm_rel_size=1 / 16, boundary=5):
+    """
     Creates a watermark on the saved inference image.
     We request that you do not remove this to properly assign credit to
     Shi-Lab's work.
-    '''
+    """
     watermark = Image.open(watermark_path)
     w_0, h_0 = watermark.size
     H, W, _ = image.shape
@@ -40,7 +41,7 @@ def add_watermark(image, watermark_path, wm_rel_size=1/16, boundary=5):
     loc_h = H - h - boundary
     loc_w = W - w - boundary
     image = Image.fromarray(image)
-    mask = watermark if watermark.mode in ('RGBA', 'LA') else None
+    mask = watermark if watermark.mode in ("RGBA", "LA") else None
     image.paste(watermark, (loc_w, loc_h), mask)
     return image
 
@@ -48,19 +49,19 @@ def add_watermark(image, watermark_path, wm_rel_size=1/16, boundary=5):
 def pre_process_canny(input_video, low_threshold=100, high_threshold=200):
     detected_maps = []
     for frame in input_video:
-        img = rearrange(frame, 'c h w -> h w c').cpu().numpy().astype(np.uint8)
+        img = rearrange(frame, "c h w -> h w c").cpu().numpy().astype(np.uint8)
         detected_map = apply_canny(img, low_threshold, high_threshold)
         detected_map = HWC3(detected_map)
         detected_maps.append(detected_map[None])
     detected_maps = np.concatenate(detected_maps)
     control = torch.from_numpy(detected_maps.copy()).float() / 255.0
-    return rearrange(control, 'f h w c -> f c h w')
+    return rearrange(control, "f h w c -> f c h w")
 
 
 def pre_process_pose(input_video, apply_pose_detect: bool = True):
     detected_maps = []
     for frame in input_video:
-        img = rearrange(frame, 'c h w -> h w c').cpu().numpy().astype(np.uint8)
+        img = rearrange(frame, "c h w -> h w c").cpu().numpy().astype(np.uint8)
         img = HWC3(img)
         if apply_pose_detect:
             detected_map, _ = apply_openpose(img)
@@ -72,14 +73,14 @@ def pre_process_pose(input_video, apply_pose_detect: bool = True):
         detected_maps.append(detected_map[None])
     detected_maps = np.concatenate(detected_maps)
     control = torch.from_numpy(detected_maps.copy()).float() / 255.0
-    return rearrange(control, 'f h w c -> f c h w')
+    return rearrange(control, "f h w c -> f c h w")
 
 
 def create_video(frames, fps, rescale=False, path=None, watermark=None):
     if path is None:
         dir = "temporal"
         os.makedirs(dir, exist_ok=True)
-        path = os.path.join(dir, 'movie.mp4')
+        path = os.path.join(dir, "movie.mp4")
 
     outputs = []
     for i, x in enumerate(frames):
@@ -95,12 +96,13 @@ def create_video(frames, fps, rescale=False, path=None, watermark=None):
 
     imageio.mimsave(path, outputs, fps=fps)
     return path
+
 
 def create_gif(frames, fps, rescale=False, path=None, watermark=None):
     if path is None:
         dir = "temporal"
         os.makedirs(dir, exist_ok=True)
-        path = os.path.join(dir, 'canny_db.gif')
+        path = os.path.join(dir, "canny_db.gif")
 
     outputs = []
     for i, x in enumerate(frames):
@@ -116,7 +118,17 @@ def create_gif(frames, fps, rescale=False, path=None, watermark=None):
     imageio.mimsave(path, outputs, fps=fps)
     return path
 
-def prepare_video(video_path:str, resolution:int, device, dtype, normalize=True, start_t:float=0, end_t:float=-1, output_fps:int=-1):
+
+def prepare_video(
+    video_path: str,
+    resolution: int,
+    device,
+    dtype,
+    normalize=True,
+    start_t: float = 0,
+    end_t: float = -1,
+    output_fps: int = -1,
+):
     vr = decord.VideoReader(video_path)
     initial_fps = vr.get_avg_fps()
     if output_fps == -1:
@@ -147,7 +159,9 @@ def prepare_video(video_path:str, resolution:int, device, dtype, normalize=True,
         h = int(h * resolution / w)
         h = h - h % 8
         w = resolution - resolution % 8
-    video = Resize((h, w), interpolation=InterpolationMode.BILINEAR, antialias=True)(video)
+    video = Resize((h, w), interpolation=InterpolationMode.BILINEAR, antialias=True)(
+        video
+    )
     if normalize:
         video = video / 127.5 - 1.0
     return video, output_fps
@@ -159,20 +173,30 @@ def post_process_gif(list_of_results, image_resolution):
     return output_file
 
 
-def calc_video_clip_score(frames, prompt, ref_model, ref_clip_preprocess,ref_tokenizer, device):
+def calc_video_clip_score(
+    frames, prompt, ref_model, ref_clip_preprocess, ref_tokenizer, device
+):
     imgs = []
-    for _,img in enumerate(frames):
+    for _, img in enumerate(frames):
         img = torchvision.utils.make_grid(torch.Tensor(img), nrow=4)
         img = (img * 255).numpy().astype(np.uint8)
         img = Image.fromarray(np.uint8(img))
         imgs.append(img)
-    sims = measure_similarity(imgs, prompt, ref_model, ref_clip_preprocess, ref_tokenizer, device)
+    sims = measure_similarity(
+        imgs, prompt, ref_model, ref_clip_preprocess, ref_tokenizer, device
+    )
     return sims.flatten().tolist()
+
 
 def assign_radii(result, clip_scores):
     # 按降序排序clip_scores,并获取对应的result元素索引
-    sorted_indices = sorted(range(len(clip_scores)), key=lambda i: clip_scores[i], reverse=True)
-    
+    sorted_indices = sorted(
+        range(len(clip_scores)), key=lambda i: clip_scores[i], reverse=True
+    )
+    sorted_indices = sorted(
+        range(len(clip_scores)), key=lambda i: clip_scores[i], reverse=False
+    )
+
     # 确定每个元素的半径长度
     radii = [0] * len(result)
     for i, idx in enumerate(sorted_indices):
@@ -180,21 +204,21 @@ def assign_radii(result, clip_scores):
         if radius < 10:
             radius = 10
         radii[idx] = radius
-    
+
     return radii
+
 
 class CrossFrameAttnProcessor:
     def __init__(self, unet_chunk_size=2):
         self.unet_chunk_size = unet_chunk_size
 
     def __call__(
-            self,
-            attn,
-            hidden_states,
-            encoder_hidden_states=None,
-            attention_mask=None):
+        self, attn, hidden_states, encoder_hidden_states=None, attention_mask=None
+    ):
         batch_size, sequence_length, _ = hidden_states.shape
-        attention_mask = attn.prepare_attention_mask(attention_mask, sequence_length, batch_size)
+        attention_mask = attn.prepare_attention_mask(
+            attention_mask, sequence_length, batch_size
+        )
         query = attn.to_q(hidden_states)
 
         is_cross_attention = encoder_hidden_states is not None
